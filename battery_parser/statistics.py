@@ -4,7 +4,7 @@ This module will provide functions for splitting, parsing battery CC/CV cycles f
 import pandas as pd
 
 
-class Check_pattern:
+class Check_pattern: #TODO перенести в файл с обработкой (который будет)
     """
     Creates object that check if given
     Args:
