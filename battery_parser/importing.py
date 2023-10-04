@@ -21,7 +21,9 @@ def list_files(directory: str, filetype: str | list[str]):
     return files
 
 
-def import_xls(filepath: str, ):
+def import_xls(filepath: str,
+               data_name_pattern = 'Detail_',
+               temp_name_pattern = 'DetailTemp_'):
     """
     Get cycling data and temperature data from Excel file.
     Specific for multiple sheet structure, where data sheets all starts
@@ -30,15 +32,15 @@ def import_xls(filepath: str, ):
     Temperature column name should consist of 'T(°C)' to add temperature to dataframe
 
     Args:
+        temp_name_pattern (str): Unique name pattern in sheets for temperature
+        data_name_pattern (str): Unique name pattern in sheets for data
         filepath (str):path to Excel file with cycling data and/or temperature
 
     Returns:
-        pd.Dataframe with data and  temperature (if exist)
+        pd.Dataframe with data (and temperature if exist)
     """
     import_data = pd.read_excel(filepath, None, )
-    data_name_pattern = 'Detail_'  # specific for data format
     data = extract_data_xls(import_data, data_name_pattern)
-    temp_name_pattern = "DetailTemp_"  # specific for data format
     temp = extract_data_xls(import_data, temp_name_pattern)
     if temp:
         temp_column_pattern = 'T(°C)'  # specific for data format
@@ -49,18 +51,18 @@ def import_xls(filepath: str, ):
     return data
 
 
-def extract_data_xls(import_data, name_pattern):
+def extract_data_xls(imported_data, name_pattern):
     """
     Select Excel sheets from data, and concat them to one dataframe (ignore index)
     Checks if pattern is in sheet names, if not returns None
     Args:
-        import_data (dict[DataFrame]): all sheets imported from Excel file
+        imported_data (dict[DataFrame]): all sheets imported from Excel file
         name_pattern (str): what should filename have in for this data.
 
     Returns:
         pd.DataFrame with all concatenated data or None if no sheets found
     """
-    data_lists = select_sheets_xls(import_data, name_pattern)
+    data_lists = select_sheets_xls(imported_data, name_pattern)
     if data_lists:
         data = pd.concat(data_lists, ignore_index=True)
         return data
@@ -68,18 +70,18 @@ def extract_data_xls(import_data, name_pattern):
         return None
 
 
-def select_sheets_xls(import_data: dict[pd.DataFrame],
+def select_sheets_xls(imported_data: dict[pd.DataFrame],
                       name_pattern: str):
     """
     Finds all data sheets that have pattern in names.
     Args:
-        import_data (dict[pd.DataFrame]): all sheets from Excel
+        imported_data (dict[pd.DataFrame]): all sheets from Excel
         name_pattern (str): pattern in sheet name
 
     Returns:
         list of data sheets with current pattern in name
     """
-    select_lists = [import_data[i] for i
-                    in import_data.keys()
+    select_lists = [imported_data[i] for i
+                    in imported_data.keys()
                     if name_pattern in i]
     return select_lists
