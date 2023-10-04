@@ -26,9 +26,9 @@ def import_xls(filepath: str,
                temp_name_pattern = 'DetailTemp_'):
     """
     Get cycling data and temperature data from Excel file.
-    Specific for multiple sheet structure, where data sheets all starts
-    with 'Detail_' and go one by another
-    temperature starts with 'DetailTemp_' and go one by another.
+    Specific for multiple sheet structure, where all data sheets have in name
+    a string like 'Detail_' (specified) and go one by another
+    temperature have in name string like 'DetailTemp_' (specified) and go one by another.
     Temperature column name should consist of 'T(°C)' to add temperature to dataframe
 
     Args:
@@ -42,7 +42,7 @@ def import_xls(filepath: str,
     import_data = pd.read_excel(filepath, None, )
     data = extract_data_xls(import_data, data_name_pattern)
     temp = extract_data_xls(import_data, temp_name_pattern)
-    if temp:
+    if temp is not None:
         temp_column_pattern = 'T(°C)'  # specific for data format
         temp_column = [i for i
                        in temp.columns
