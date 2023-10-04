@@ -33,9 +33,10 @@ class Check_pattern: #TODO перенести в файл с обработко�
 
 def generate_statistics(data: pd.DataFrame,
                         group_marker="Step",
-                        statistics_pattern={'Cur(A)': ['mean', 'std'],
-                                            'Relative Time': ['max', 'diff'],
-                                            'Voltage(V)': 'mean', }):
+                        statistics_pattern={'I': ['mean', 'std'],
+                                            'Time': ['max', 'diff'],
+                                            'E': 'mean',
+                                            'T':['min', 'max']}):
     """
     Group dataframe by 'group_marker' and summarize explicit columns with given methods.
     'statistic_pattern' configure statistic results.
