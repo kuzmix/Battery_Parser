@@ -55,16 +55,16 @@ def rename_columns(dataframe: pd.DataFrame,
 
 
 def parse_time(dataframe:pd.DataFrame,
-               time_column=None,
-               time_unit='S',
-               datetime_column=None,
+               time_column:str=None,
+               time_unit:str='S',
+               datetime_column:str=None,
                **kwargs):
     """
     Function that parse time columns to seconds(float)
     and datetime columns (in object or text) to datetime object.
     Args:
         dataframe (): dataframe to modify
-        time_column (): columns that have time, transfers to float64 in seconds
+        time_column (): columns that have time, transfers to float64 seconds format
         time_unit (): if time column type is numeric, specifies units for transfer
         datetime_column (): columns that have datetime forms, transfer to datetime object
         **kwargs (): arguments for datetime parser
