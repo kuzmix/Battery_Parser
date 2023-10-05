@@ -2,7 +2,10 @@ import pandas as pd
 import pandas.api.types
 
 
-def rename_columns(dataframe: pd.DataFrame,
+# TODO add retype functions
+
+
+def rename_columns(data: pd.DataFrame,
                    rename: dict = None,
                    default_rename=True,
                    inplace=True):
@@ -23,18 +26,18 @@ def rename_columns(dataframe: pd.DataFrame,
     'Auxiliary channel TU1 T(°C)':'T'
 
     Args:
-        dataframe (Dataframe): dataframe for renaming columns
+        data (Dataframe): data for renaming columns
         rename (dict): some specific renaming patterns
         default_rename (bool): Should you use default rename or not.
          Rename dict rewrites default dict
-        inplace (bool): modify given dataframe or return modified copy of dataframe
+        inplace (bool): modify given data or return modified copy of data
 
     Returns:
         None or modified DataFrame
     """
     rename_dict = {}
     if default_rename:
-        default_rename_dict = {'Record Index':'Index', #TODO should be transfered to specific file
+        default_rename_dict = {'Record Index':'Index',  # TODO should be transfered to specific file
                                'Cur(A)':'I',
                                'Voltage(V)':'E',
                                'CapaCity(Ah)':'Q',
@@ -49,21 +52,21 @@ def rename_columns(dataframe: pd.DataFrame,
         rename_dict.update(rename)
 
     if inplace:
-        dataframe.rename(mapper=rename_dict, axis=1, inplace=True)
+        data.rename(mapper=rename_dict, axis=1, inplace=True)
     else:
-        return dataframe.rename(mapper=rename_dict, axis=1)
+        return data.rename(mapper=rename_dict, axis=1)
 
 
-def parse_time(dataframe:pd.DataFrame,
-               time_column:str=None,
-               time_unit:str='S',
-               datetime_column:str=None,
+def parse_time(dataframe: pd.DataFrame,
+               time_column: str = None,
+               time_unit: str = 'S',
+               datetime_column: str = None,
                **kwargs):
     """
     Function that parse time columns to seconds(float)
     and datetime columns (in object or text) to datetime object.
     Args:
-        dataframe (): dataframe to modify
+        data (): data to modify
         time_column (): columns that have time, transfers to float64 seconds format
         time_unit (): if time column type is numeric, specifies units for transfer
         datetime_column (): columns that have datetime forms, transfer to datetime object
@@ -83,3 +86,119 @@ def parse_time(dataframe:pd.DataFrame,
     if datetime_column:
         dataframe[datetime_column] = pd.to_datetime(dataframe[datetime_column], **kwargs)
 
+
+def check_unity(data: pd.DataFrame):
+    """
+    Check if dataframe have sequential indexes
+    Args:
+        data (): Dataframe for check
+
+    Returns:
+        bool - if indexes sequential
+    """
+    return all(data.index.diff().to_frame().mean() == 1)
+
+
+def get_steps_data(data: pd.DataFrame, steps: list[int], specified_column='Step'):
+    """
+    Select steps by number (or other value) in specified column, checks if it
+    is sequential and returns list of copies of steps.
+    Args:
+        data (): initial Dataframe for selecting data
+        steps (): values for steps
+        specified_column (): where values should be
+
+    Returns:
+        list[pd.Dataframe] - steps from data.
+    """
+    data_steps = [data[data[specified_column] == i].copy() for i in steps]
+    if not check_unity(pd.concat(data_steps)):
+        print('get_steps_data: Warning! Merging values are not sequential!')
+    return data_steps
+
+
+def merge_time(data_steps: list, merging_method, column='Time'):
+    """
+    Make relative time from experiments cumulative by selected method
+    methods: 'overlap' - drop last point for every step and
+    increment became value of dropped point
+    float/int - gap method with gap between steps equal to value.
+    Args:
+        data_steps (): list of steps
+        merging_method (): 'overlap' - drop last point for step,
+                            float/int - gap method, with given value
+        column (): name for time column
+
+    Returns:
+
+    """
+    match merging_method:
+        case float() | int():
+            return gap_merge(data_steps, merging_method, column)
+        case 'overlap':
+            return overlap_merge(data_steps)
+        case None:
+            return data_steps
+
+
+def gap_merge(data_steps: list, gap: float | int, column='Time'):
+    """
+    Modify time column with gap method - consequently
+    Args:
+        data_steps (): list of steps
+        gap (): value of gap between steps
+        column (): time column name
+
+    Returns:
+        list of steps with modified time values
+    """
+    increment = 0
+    for step in data_steps:
+        step.loc[:, column] += increment
+        increment = step[column].max() + gap
+    return data_steps
+
+
+def overlap_merge(data_steps: list[pd.DataFrame], column='Time'):
+    """
+    Modify time and overlap cycles - delete last point for every step
+    Args:
+        data_steps (): list of steps
+        column (): name for time column
+
+    Returns:
+
+    """
+    increment = 0
+    for step in data_steps:
+        step.loc[:, column] += increment
+        increment = step[column].max()
+        step.drop(step.tail(1).index, inplace=True)
+    return data_steps
+
+
+def extract_sequences(data: pd.DataFrame,
+                      sequences: list[list[int]],
+                      time_merge: str | float,
+                      sequence_column='Step',
+                      time_column='Time'
+                      ):
+    """
+    Returns merged dataframes, each from sequences list.
+     Also merges time with selected method.
+    Args:
+        data (): initial dataframe
+        sequences (): all hints for selection of cycles
+        time_merge (): method for time merge: 'overlap' or float/int for gap method
+        sequence_column (): name for sequence selection column
+        time_column (): name for time column
+
+    Returns:
+        list of selected sequences
+    """
+    sequences_data = []
+    for sequence in sequences:
+        data_steps = get_steps_data(data=data, steps=sequence, specified_column=sequence_column)
+        data_steps = merge_time(data_steps, time_merge, column=time_column)
+        sequences_data.append(pd.concat(data_steps))
+    return sequences_data
