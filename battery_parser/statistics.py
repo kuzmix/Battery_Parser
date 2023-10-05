@@ -4,7 +4,7 @@ This module will provide functions for splitting, parsing battery CC/CV cycles f
 import pandas as pd
 
 
-class Check_pattern: #TODO перенести в файл с обработкой (который будет)
+class Check_pattern:  # TODO перенести в файл с обработкой (который будет)
     """
     Creates object that check if given
     Args:
@@ -36,7 +36,7 @@ def generate_statistics(data: pd.DataFrame,
                         statistics_pattern={'I': ['mean', 'std'],
                                             'Time': ['max', 'diff'],
                                             'E': 'mean',
-                                            'T':['min', 'max']}):
+                                            'T': ['min', 'max']}):
     """
     Group dataframe by 'group_marker' and summarize explicit columns with given methods.
     'statistic_pattern' configure statistic results.
@@ -95,36 +95,47 @@ def column_statistics_step(grouped_data: pd.DataFrame, column: str, method: str)
     Returns:
             (dict) with one entry - statistic summary for method and column. Key = column_method
     """
-    return {'_'.join([column, method]): summarize_grouper_fragment(grouped_data[column], method)}
+    return {'_'.join([column, method]):summarize_grouper_fragment(grouped_data[column], method)}
 
 
-def summarize_grouper_fragment(data_slice, method: str = 'mean'):
+def summarize_grouper_fragment(grouped_slice, method: str = 'mean'):
     """
-    One column (or maybe more, I test it only with Series) and text method
+    One column (or maybe more, I test it only with Series.groupby) and text method
     make statistic for given data_slice with given method
 
     Args:
-        data_slice (pd.Series.groupby): grouper object for one Series
-        method (str): method marker. Handle 'mean', 'std', 'max', 'min', 'diff' methods
+        grouped_slice (pd.Series.groupby): grouper object for one Series
+        method (str): method marker. Handle 'mean', 'std', 'max', 'min', 'diff', 'count',
+        'unique_values' methods
 
     Returns:
         pd.Series
     """
     match method:
         case 'mean':
-            return data_slice.mean()
+            return grouped_slice.mean()
         case 'std':
-            return data_slice.std()
+            return grouped_slice.std()
         case 'max':
-            return data_slice.max()
+            return grouped_slice.max()
         case 'min':
-            return data_slice.min()
+            return grouped_slice.min()
         case 'diff':
-            index_name = data_slice.keys
-            column_name = data_slice.nth(0).name
-            dict_diff = {step[0]: step[1].diff().mean() for step in data_slice}
+            index_name = grouped_slice.keys
+            column_name = grouped_slice.nth(0).name
+            dict_diff = {step[0]: step[1].diff().mean() for step in grouped_slice}
             output = pd.Series(dict_diff, name=column_name)
             output.index.name = index_name
             return output
+        case 'count':
+            return grouped_slice.count()
+        case 'unique_values':
+            if all(grouped_slice.nunique() > 10):
+                print('Warning! More than 10 unique values in group!')
+                return grouped_slice.unique().apply(transform_np_to_str)
         case _:
             raise ValueError
+
+
+def transform_np_to_str(element):
+    return ', '.join(element.tolist())
