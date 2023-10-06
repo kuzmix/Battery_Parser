@@ -117,7 +117,7 @@ def get_steps_data(data: pd.DataFrame, steps: list[int], specified_column='Step'
     return data_steps
 
 
-def merge_time(data_steps: list, merging_method, column='Time'):
+def merge_time(data_steps: list, merging_method = 'remove_first', column='Time'):
     """
     Make relative time from experiments cumulative by selected method
     methods: 'overlap' - drop last point for every step and
@@ -135,8 +135,8 @@ def merge_time(data_steps: list, merging_method, column='Time'):
     match merging_method:
         case float() | int():
             return gap_merge(data_steps, merging_method, column)
-        case 'overlap':
-            return overlap_merge(data_steps)
+        case 'remove_first'|'remove_last':
+            return overlap_merge(data_steps, column = column, merging_method=merging_method)
         case None:
             return data_steps
 
@@ -159,12 +159,14 @@ def gap_merge(data_steps: list, gap: float | int, column='Time'):
     return data_steps
 
 
-def overlap_merge(data_steps: list[pd.DataFrame], column='Time'):
+def overlap_merge(data_steps: list[pd.DataFrame], column='Time', merging_method='remove_first'):
     """
-    Modify time and overlap cycles - delete last point for every step
+    Modify time and overlap cycles
+    delete first or last point for every step
     Args:
         data_steps (): list of steps
         column (): name for time column
+        merging_method (): 'remove_first' or 'remove_last'
 
     Returns:
 
@@ -173,7 +175,14 @@ def overlap_merge(data_steps: list[pd.DataFrame], column='Time'):
     for step in data_steps:
         step.loc[:, column] += increment
         increment = step[column].max()
-        step.drop(step.tail(1).index, inplace=True)
+    match merging_method:
+        case 'remove_last':
+            for step in data_steps[0:-1]:
+                step.drop(step.tail(1).index, inplace=True)
+        case 'remove_first':
+            for step in data_steps[1:]:
+                step.drop(step.head(1).index, inplace=True)
+
     return data_steps
 
 
