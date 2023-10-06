@@ -1,7 +1,7 @@
 import battery_parser as bp
 
 if __name__ == '__main__':
-    directory = r'D:\Matlab_projects\RC-simulation\data\n7_rerun'  # Папка где лежат все эксперименты
+    directory = r'c:\Binary_Beaver\YandexDisk\MIPT\BP_test'  # Папка где лежат все эксперименты
     files = bp.importing.list_files(directory=directory, filetype='xls')  # Список файлов с форматом xls
     data = [bp.import_xls(filename) for filename in files]  # Список импортированных из этих экселей таблиц
     test_dataset = data[0]  # У нас одна таблица, поэтому работаем с ней
@@ -22,6 +22,6 @@ if __name__ == '__main__':
     pattern = '0-0+0-0+0'  # Задает шаблон для поиска для окон. Если хочется, можно задать параметр windows вручную
     # Формат: 0 - нулевое значение, +  больше нуля,  - меньше нуля. Передаётся строкой
     windows = bp.find_pattern(statistics_data['I_mean'], pattern=pattern)  # ищет вхождения шаблона в шагах
-    merge_data = bp.extract_sequences(test_dataset, windows, time_merge=0.1)  # Извлекает указанные вхождения шаблона,
+    merge_data = bp.extract_sequences(test_dataset, windows, time_merge = 'remove_first')  # Извлекает указанные вхождения шаблона,
     # сшивает по времени шаги либо через 'overlap', либо через gap в секундах
-    bp.save_sequences(merge_data, r'D:\data')  # сохраняет полученные результаты.
+    bp.save_sequences(merge_data, r'c:\Binary_Beaver\YandexDisk\MIPT\BP_test')  # сохраняет полученные результаты.
