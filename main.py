@@ -24,4 +24,5 @@ if __name__ == '__main__':
     windows = bp.find_pattern(statistics_data['I_mean'], pattern=pattern)  # ищет вхождения шаблона в шагах
     merge_data = bp.extract_sequences(test_dataset, windows, time_merge = 'remove_first')  # Извлекает указанные вхождения шаблона,
     # сшивает по времени шаги либо через 'overlap', либо через gap в секундах
-    bp.save_sequences(merge_data, r'c:\Binary_Beaver\YandexDisk\MIPT\BP_test')  # сохраняет полученные результаты.
+    bp.save_sequences(merge_data, r'c:\Binary_Beaver\YandexDisk\MIPT\BP_test',columns=['Step','Time','I','E'], sep = '\t')  # сохраняет полученные результаты.
+    # доп-аргументы: 'columns' для вывода только нужных колонок; 'sep' - символ-сепаратор; и другие аргументы для pandas.DataFrame.to_csv

@@ -3,7 +3,7 @@ import os
 import pandas as pd
 
 
-def save_experiment(data: pd.DataFrame, filepath: str, **kwargs):
+def save_experiment(data: pd.DataFrame, filepath: str, index = False, **kwargs):
     """
     Saves experiment as csv to given path. kwargs for saving function df.to_csv
     Args:
@@ -16,7 +16,7 @@ def save_experiment(data: pd.DataFrame, filepath: str, **kwargs):
     directory, filename = os.path.split(filepath)
     if not os.path.exists(directory):
         os.makedirs(directory)
-    data.to_csv(filepath, **kwargs)
+    data.to_csv(filepath, index = index, **kwargs)
 
 
 def save_sequences(splits_data: list[pd.DataFrame], dir_path: str, **kwargs):
