@@ -95,14 +95,18 @@ def summarize_grouper_fragment(grouped_slice, method: str = 'mean'):
             return grouped_slice.max()
         case 'min':
             return grouped_slice.min()
+        case 'first':
+            return grouped_slice.first()
+        case 'last':
+            return grouped_slice.last()
         case 'range':
             return grouped_slice.max() - grouped_slice.min()
         case 'diff':
-            index_name = grouped_slice.keys
+            # index_name = grouped_slice.keys
             column_name = grouped_slice.nth(0).name
             dict_diff = {step[0]:step[1].diff().mean() for step in grouped_slice}
             output = pd.Series(dict_diff, name=column_name)
-            output.index.name = index_name
+            # output.index.name = index_name
             return output
         case 'count':
             return grouped_slice.count()
@@ -118,7 +122,7 @@ def transform_np_to_str(element):
     return ', '.join(element.tolist())
 
 
-class Check_pattern:  # TODO перенести в файл с обработкой (который будет)
+class Check_pattern:  # Update
     """
     Creates object that checks if given value list corresponds to given pattern.
     Args:

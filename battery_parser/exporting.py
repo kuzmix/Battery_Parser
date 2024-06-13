@@ -16,7 +16,15 @@ def save_experiment(data: pd.DataFrame, filepath: str, **kwargs):
     directory, filename = os.path.split(filepath)
     if not os.path.exists(directory):
         os.makedirs(directory)
+    if 'index_label' not in kwargs.keys():
+        kwargs['index_label'] = 'Index'
     data.to_csv(filepath, **kwargs)
+
+
+def load_experiment(filepath: str, **kwargs):
+    if 'index_col' not in kwargs.keys():
+        kwargs['index_col'] = 'Index'
+    return pd.read_csv(filepath, **kwargs)
 
 
 def save_sequences(splits_data: list[pd.DataFrame], dir_path: str, **kwargs):

@@ -1,3 +1,6 @@
+import itertools
+import re
+
 import pandas as pd
 import pandas.api.types
 
@@ -27,7 +30,7 @@ def rename_columns(data: pd.DataFrame,
 
     Args:
         data (Dataframe): data for renaming columns
-        rename (dict): some specific renaming patterns
+        rename (dict): some specific renaming p
         default_rename (bool): Should you use default rename or not.
          Rename dict rewrites default dict
         inplace (bool): modify given data or return modified copy of data
@@ -38,13 +41,19 @@ def rename_columns(data: pd.DataFrame,
     rename_dict = {}
     if default_rename:
         default_rename_dict = {'Record Index':'Index',  # TODO should be transfered to specific file
+                               'DataPoint':'Index',
                                'Cur(A)':'I',
+                               'Current(A)':'I',
                                'Voltage(V)':'E',
                                'CapaCity(Ah)':'Q',
+                               'Capacity(Ah)':'Q',
                                'Energy(Wh)':'Energy',
                                'Absolute Time':'Datetime',
+                               'Date':'Datetime',
                                'Relative Time(h:min:s.ms)':'Time',
-                               'Auxiliary channel TU1 T(°C)':'T'
+                               'Auxiliary channel TU1 T(°C)':'T',
+                               'T1':'T',
+                               'Power(W)':'P'
                                }
         rename_dict.update(default_rename_dict)
 
@@ -211,3 +220,40 @@ def extract_sequences(data: pd.DataFrame,
         data_steps = merge_time(data_steps, time_merge, column=time_column)
         sequences_data.append(pd.concat(data_steps))
     return sequences_data
+
+
+def check_dict_intersection(dict_):
+    result = []
+    for key1, key2 in itertools.combinations(dict_, 2):
+        set1 = set(dict_[key1])
+        set2 = set(dict_[key2])
+        intersection = set1.intersection(set2)
+        if intersection:
+            print(f'{key1} and {key2} has intersection {intersection}!')
+            result.append([key1, key2, intersection])
+        return result
+
+
+class Find_key:
+    def __init__(self, check_dict):
+        self.dictionary = check_dict
+
+    def __call__(self, element):
+        result = [key for key, value in self.dictionary.items() if element in value]
+        if len(result) == 1:
+            return result[0]
+        return result
+
+
+def step_id_creator(pouch, column='Step'):
+    step_column = pouch[column]
+    step_unique = step_column.unique()
+    step_unique.sort()
+    length = len(step_unique)
+    step_id = [1]
+    if re.findall(r'2.*4\.1', step_unique[1]):
+        step_id.append(2)
+    step_id.extend(range(2, length - len(step_id) + 2))
+    step_id_dict = {name:code for name, code in zip(step_unique, step_id)}
+    step_id_ser = step_column.apply(lambda x:step_id_dict[x])
+    return step_id_ser
