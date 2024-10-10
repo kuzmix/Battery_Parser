@@ -139,7 +139,7 @@ class Regex_parse:
         result = re.findall(pattern, string)
         if len(result) != 1:
             print(f'Warning! For \n {string} \n found {len(result)} entries!')
-        result = [[*i, string] for i in result]
+        result = [[i, string] for i in result]
         return result
 
     @staticmethod
