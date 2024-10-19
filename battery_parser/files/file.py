@@ -71,6 +71,8 @@ class FileAction(FileInfo):
         """Создаёт копию файла по переданному пути
             - Если передаётся путь на директорию - то скопировать файл туда с оригинальным именем
             - Если передаёт имя файла - копирует файл под это имя"""
+        if isinstance(destination, File):
+            destination = destination.path
         if destination.is_file():
             print(f'Копирование {self.path} перезаписывает {destination}.')
         shutil.copy2(self.path, destination)
@@ -86,6 +88,8 @@ class FileAction(FileInfo):
         :return: None
         :rtype:
         """
+        if isinstance(destination, File):
+            destination = destination.path
         if destination.is_file():
             print(f'Перемещение {self.path} перезаписывает {destination}.')
         shutil.move(self.path, destination)
@@ -101,6 +105,9 @@ class FileAction(FileInfo):
             while chunk := f.read(self.chunk_size):
                 hash_func.update(chunk)
         return hash_func.hexdigest()
+
+    def update_hash(self):
+        self.hash = self._compute_hash()
 
     @property
     def algorithm(self):

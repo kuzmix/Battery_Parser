@@ -1,7 +1,7 @@
 """
 Модуль предназначен для работы с файлами: сортировки, переименования, перемещения, удаления.
 """
-from itertools import combinations
+from itertools import combinations, product
 from pathlib import Path
 
 from file import File
@@ -60,7 +60,7 @@ class DirectoryIter:
         return f"<DirectoryInfo(path={self.path}, files={len(self.files)})>"
 
 
-def delete_duplicates(source: FileList,
+def delete_duplicates(source: DirectoryIter,
                       duplicate_key=lambda x:x.hash,
                       delete_key=lambda x:-x.size):
     """
@@ -105,11 +105,41 @@ def remove_empty_dirs(dir_path: Path):
                 subdir.rmdir()
 
 
+def remove_existing_files(source: DirectoryIter,
+                          target: DirectoryIter,
+                          duplicate_key=lambda x:x.hash,
+                          move_key=lambda x:x.size
+                          ):
+    delete_set = set()
+
+    for s, d in product(source, target):
+        if duplicate_key(s) == duplicate_key(d):
+            print(f'Найден дубликат {s}')
+            if move_key(s) > move_key(d):
+                print(f'Новый файл лучше, перемещение')
+                s.copy(d)
+                d.update_hash()
+                delete_set.add(s)
+            else:
+                print(f'Новый файл не нужен, удаление')
+                delete_set.add(s)
+    for s in delete_set:
+        s.delete()
+    source.update()
+    target.update()
+
+
 if __name__ == '__main__':
-    # Испытание DirectoryInfo
+    # Алгоритм обработки
     source = r'D:\Python\Testing\Разобрать эксперименты'
+    target = r'D:\Python\Testing\target'
     source = DirectoryIter(source)
+    target = DirectoryIter(target)
     print(source)
+    print(target)
     delete_duplicates(source, lambda x:x.hash, lambda x:str(x.full_path))
     remove_empty_dirs(source.path)
+    print(source)
+    remove_existing_files(source, target, lambda x:x.hash)
+    remove_existing_files(source, target, lambda x:x.name)
     print(source)
