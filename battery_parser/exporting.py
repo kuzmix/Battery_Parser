@@ -5,10 +5,10 @@ import pandas as pd
 
 def save_experiment(data: pd.DataFrame, filepath: str, **kwargs):
     """
-    Saves experiment as csv to given path. kwargs for saving function df.to_csv
+    Saves experiment as csv to given destination. kwargs for saving function df.to_csv
     Args:
         data (): dataframe to save
-        filepath (): path for saving
+        filepath (): destination for saving
 
     Returns:
         None

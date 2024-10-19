@@ -7,9 +7,9 @@ import pandas as pd
 def list_files(directory: str, filetype: str | list[str]):
     """
     Create list of all files in directory (without recurrent walking in dirs)
-    with given file format (filetype)
+    with given file format (file_rep)
     Args:
-        directory (str of path-like obj): directory for file search
+        directory (str of destination-like obj): directory for file search
         filetype (str|list): necessary file formats
 
     Returns:
@@ -38,9 +38,9 @@ def import_xls(filepath: str,
     Temperature column name should consist of {temp_column_pattern} to add temperature to dataframe
 
     Args:
-        temp_name_pattern (str): Unique name pattern in sheets for temperature
-        data_name_pattern (str): Unique name pattern in sheets for data
-        filepath (str):path to Excel file with cycling data and/or temperature
+        temp_name_pattern (str): Unique name filter_pattern in sheets for temperature
+        data_name_pattern (str): Unique name filter_pattern in sheets for data
+        filepath (str):destination to Excel file with cycling data and/or temperature
 
     Returns:
         pd.Dataframe with data (and temperature if exist)
@@ -64,7 +64,7 @@ def import_xls(filepath: str,
 def extract_data_xls(imported_data, name_pattern):
     """
     Select Excel sheets from data, and concat them to one dataframe (ignore index)
-    Checks if pattern is in sheet names, if not returns None
+    Checks if filter_pattern is in sheet names, if not returns None
     Args:
         imported_data (dict[DataFrame]): all sheets imported from Excel file
         name_pattern (str): what should filename have in for this data.
@@ -83,13 +83,13 @@ def extract_data_xls(imported_data, name_pattern):
 def select_sheets_xls(imported_data: dict[pd.DataFrame],
                       name_pattern: str):
     """
-    Finds all data sheets that have pattern in names.
+    Finds all data sheets that have filter_pattern in names.
     Args:
         imported_data (dict[pd.DataFrame]): all sheets from Excel
-        name_pattern (str): pattern in sheet name
+        name_pattern (str): filter_pattern in sheet name
 
     Returns:
-        list of data sheets with current pattern in name
+        list of data sheets with current filter_pattern in name
     """
     select_lists = [imported_data[i] for i
                     in imported_data.keys()
@@ -128,7 +128,7 @@ class Regex_parse:
     @staticmethod
     def _parser(pattern, string):
         """
-        Takes pattern and string, applies re. function, and compose answer.
+        Takes filter_pattern and string, applies re. function, and compose answer.
         Args:
             pattern ():
             string ():
@@ -160,15 +160,15 @@ class Regex_parse:
 def unique_re(pattern: str, files: list):
     """
     Function unique_re tests each string in given files list, and
-    a)checks, how many times pattern presented in string (by printing warning if not once),
-    b)return number total number of pattern entries in strings, number of unique entries and set of unique entries.
+    a)checks, how many times filter_pattern presented in string (by printing warning if not once),
+    b)return number total number of filter_pattern entries in strings, number of unique entries and set of unique entries.
     Function is created for engineering regex patterns.
     Args:
-        pattern (str): regex pattern, that you want to test on files.
+        pattern (str): regex filter_pattern, that you want to test on files.
         files (list):strings that you want to test with regex.
 
     Returns:
-        (n_values - total number of pattern entries, n_unique - number of unique entries, unique_values - list of unique entries)
+        (n_values - total number of filter_pattern entries, n_unique - number of unique entries, unique_values - list of unique entries)
 
     """
     assert isinstance(files, list)

@@ -13,7 +13,7 @@ def generate_statistics(data: pd.DataFrame,
     """
     Group dataframe by 'group_marker' and summarize explicit columns with given methods.
     'statistic_pattern' configure statistic results.
-    Standard pattern include Current, time and voltage summarization.
+    Standard filter_pattern include Current, time and voltage summarization.
     Summarization methods are currently 'mean', 'std', 'max', 'min', 'diff', 'range', 'count',
             'unique_values'.
     Args:
@@ -124,7 +124,7 @@ def transform_np_to_str(element):
 
 class Check_pattern:  # Update
     """
-    Creates object that checks if given value list corresponds to given pattern.
+    Creates object that checks if given value list corresponds to given filter_pattern.
     Args:
         pattern:str string of '+', '-' or '0' for positive, negative and zero value
     """
@@ -134,8 +134,8 @@ class Check_pattern:  # Update
 
     def __call__(self, split: list):
         """
-        Checks if values in list are consistent with pattern. List length should be
-        equal to pattern length.
+        Checks if values in list are consistent with filter_pattern. List length should be
+        equal to filter_pattern length.
         Args:
             split (): list of values.
 
