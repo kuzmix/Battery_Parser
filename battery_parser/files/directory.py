@@ -29,6 +29,7 @@ class FileList(list):
 
 
 
+
 class DirectoryIter:
     """
     Класс для представления директории из файлов
@@ -36,18 +37,18 @@ class DirectoryIter:
     В него можно передать необходимый корень папку, паттерн фильтрации файлов (regex),
      класс для репрезентации файлов (базово File из battery_parser.file)
     """
+    file_class = File
 
-    def __init__(self, dir_path: str, filter_pattern='*', file_rep=File):
+    def __init__(self, dir_path: str, filter_pattern='*', ):
         self.path = Path(dir_path).resolve()
         self.filter_pattern = filter_pattern
-        self.rep = file_rep
         if not self.path.is_dir():
             raise ValueError(f"'{dir_path}' не является директорией.")
         self.files = self._get_files()
 
     def _get_files(self):
         """Получает все файлы в директории, включая поддиректории."""
-        return FileList([self.rep(f) for f in self.path.rglob(self.filter_pattern) if f.is_file()])
+        return FileList([self.file_class(f) for f in self.path.rglob(self.filter_pattern) if f.is_file()])
 
     def __iter__(self):
         return iter(self.files)
@@ -59,8 +60,6 @@ class DirectoryIter:
     def __repr__(self):
         return f"<DirectoryInfo(path={self.path}, files={len(self.files)})>"
 
-    def filter(self, pattern):
-        return self.files.filter(pattern)
 
 
 # class DirectoryCleaner: #TODO Нужно удалить кривые счётчики.
