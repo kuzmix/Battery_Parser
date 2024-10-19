@@ -56,14 +56,15 @@ class FileInfo(FileInit):
 
 
 class FileAction(FileInfo):
+    """
+    Класс позволяет проводить над файлами операции -
+    """
+    algorithm: str = 'sha256',
+    chunk_size: int = 1024,
     def __init__(self, file_path: str,
-                 algorithm: str = 'sha256',
-                 chunk_size: int = 1024,
                  root_dir: (Path, str) = None):
         super().__init__(file_path)
         self.root_dir = None if root_dir is None else Path(root_dir)
-        self.algorithm = algorithm
-        self.chunk_size = chunk_size
         self.hash = self._compute_hash()
 
     def copy(self, destination: Path):
@@ -95,13 +96,21 @@ class FileAction(FileInfo):
 
     def _compute_hash(self) -> str:
         """Вычисляет хэш файла (по умолчанию SHA-256)."""
-        if self.algorithm not in hashlib.algorithms_available:
-            raise ValueError('')
         hash_func = hashlib.new(self.algorithm)
         with open(self.path, 'rb') as f:
             while chunk := f.read(self.chunk_size):
                 hash_func.update(chunk)
         return hash_func.hexdigest()
+
+    @property
+    def algorithm(self):
+        return self._algorithm
+
+    @algorithm.setter
+    def algorithm(self, algorithm):
+        if algorithm not in hashlib.algorithms_available:
+            raise ValueError('Algorithm not supported.')
+        self.__class__._algorithm = algorithm
 
     # @property
     # def hash(self) -> str:
