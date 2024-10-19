@@ -11,9 +11,9 @@ class FileList(list):
     """
     Класс для работы со списком файлов. Класс файла должен поддерживать функцию .match
     """
+    file_type = File
 
-    def __init__(self, *args, file_rep=File, **kwargs):
-        self.filetype = file_rep
+    def __init__(self, *args, **kwargs):
         self._check_type(args)
         self._check_type(kwargs.values())
 
@@ -24,18 +24,16 @@ class FileList(list):
             for i in el:
                 self._check_type(i)
         else:
-            if not isinstance(el, self.filetype):
+            if not isinstance(el, self.file_type):
                 raise TypeError('Элемент не принадлежит нужному типу.')
 
-    def filter(self, pattern):
-        return self.__class__([i for i in self if i.path.match(pattern)])
 
 
 class DirectoryIter:
     """
     Класс для представления директории из файлов
     Итерируется.
-    В него можно передать необходимый корень папКУ, паттерн фильтрации файлов (regex),
+    В него можно передать необходимый корень папку, паттерн фильтрации файлов (regex),
      класс для репрезентации файлов (базово File из battery_parser.file)
     """
 
