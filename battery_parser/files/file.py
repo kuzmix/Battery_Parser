@@ -112,11 +112,6 @@ class FileAction(FileInfo):
             raise ValueError('Algorithm not supported.')
         self.__class__._algorithm = algorithm
 
-    # @property
-    # def hash(self) -> str:
-    #     """Возвращает хэш файла (по умолчанию SHA-256)."""
-    #     return self._compute_hash()
-
 
 class File(FileAction):
     pass
