@@ -46,7 +46,7 @@ class FileInfo(FileInit):
         return self.path.stat().st_size
 
     @property
-    def last_modified(self) -> datetime:
+    def date_modified(self) -> datetime:
         """Возвращает дату последней модификации файла."""
         timestamp = self.path.stat().st_mtime
         return datetime.fromtimestamp(timestamp)
@@ -59,8 +59,8 @@ class FileAction(FileInfo):
     """
     Класс позволяет проводить над файлами операции -
     """
-    algorithm: str = 'sha256',
-    chunk_size: int = 1024,
+    _algorithm: str = 'sha256'
+    chunk_size: int = 1024
     def __init__(self, file_path: str,
                  root_dir: (Path, str) = None):
         super().__init__(file_path)
@@ -104,7 +104,7 @@ class FileAction(FileInfo):
 
     @property
     def algorithm(self):
-        return self._algorithm
+        return self.__class__._algorithm
 
     @algorithm.setter
     def algorithm(self, algorithm):

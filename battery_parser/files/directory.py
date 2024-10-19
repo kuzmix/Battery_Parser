@@ -28,8 +28,6 @@ class FileList(list):
                 raise TypeError('Элемент не принадлежит нужному типу.')
 
 
-
-
 class DirectoryIter:
     """
     Класс для представления директории из файлов
@@ -38,6 +36,7 @@ class DirectoryIter:
      класс для репрезентации файлов (базово File из battery_parser.file)
     """
     file_class = File
+    file_list = FileList
 
     def __init__(self, dir_path: str, filter_pattern='*', ):
         self.path = Path(dir_path).resolve()
@@ -48,7 +47,7 @@ class DirectoryIter:
 
     def _get_files(self):
         """Получает все файлы в директории, включая поддиректории."""
-        return FileList([self.file_class(f) for f in self.path.rglob(self.filter_pattern) if f.is_file()])
+        return self.file_list([self.file_class(f) for f in self.path.rglob(self.filter_pattern) if f.is_file()])
 
     def __iter__(self):
         return iter(self.files)
@@ -61,119 +60,56 @@ class DirectoryIter:
         return f"<DirectoryInfo(path={self.path}, files={len(self.files)})>"
 
 
+def delete_duplicates(source: FileList,
+                      duplicate_key=lambda x:x.hash,
+                      delete_key=lambda x:-x.size):
+    """
+    Функция принимает список файлов (итерируемый, наследуемый
+    от FileList или DirectoryIter).
 
-# class DirectoryCleaner: #TODO Нужно удалить кривые счётчики.
-#     """
-#     Удаляет ненужные файлы
-#     """
-#
-#     def __init__(self, source_dir: (str, DirectoryInfo), target_dir: (str, DirectoryInfo)):
-#
-#         self.source = source_dir
-#         self.target = target_dir
-#
-#     def clean(self, smart_copy=False):
-#         """Удаляет файлы из исходной директории, если они уже существуют в целевой директории."""
-#         for file_info in self.source.files:
-#             if file_info.hash in self.target.hashes and self.target.hashes[file_info.hash] == file_info.name:
-#                 str_output = f"Удаление файла: {file_info.name} (существует в целевой директории)"
-#                 if self.target.hashes[file_info.hash] == file_info.name:
-#                     str_output += ' + совпадает с целевым по имени+'
-#                 print(str_output)
-#                 file_info.path.unlink()  # Удаление файла
-#                 self.deleted_files_count()  # Увеличиваем счетчик удаленных файлов
-#             else:
-#                 if smart_copy:
-#                     self.smart_copy(file_info)
-#         # Удаляем пустые папки из исходной директории
-#         self._remove_empty_dirs(self.source.path)
-#         self.source.update()
-#         self.target.update()
-#
-#         # Выводим количество удаленных файлов и папок
-#         print(f"\nУдалено файлов: {self.deleted_files_count.i}")
-#         print(f"Удалено папок: {self.deleted_dirs_count.i}")
-#
-#     def __setattr__(self, key, value):
-#         if key in ['source', 'target', ]:
-#             if isinstance(value, DirectoryInfo):
-#                 super().__setattr__(key, value)
-#             elif isinstance(value, str):
-#                 super().__setattr__(key, DirectoryInfo(value))
-#             else:
-#                 raise TypeError('Directory paths are not valid.')
-#
-#     def check_filenames(self):
-#         """
-#
-#         :return:
-#         :rtype:
-#         """
-#         target_names = [f.name for f in self.target.files]
-#         for file_info in self.source.files:
-#             if file_info.name in target_names:
-#                 if len([d for d in self.target.files if d.name == file_info.name]) > 1:
-#                     print(f"Более одного совпадающего файла для {file_info.name}")
-#                 for target_file in [d for d in self.target.files if d.name == file_info.name]:
-#                     print(f'{file_info.name} есть в целевой папке')
-#                     if file_info.hash != target_file.hash:
-#                         print('Hash не совпадает!')
-#                         print(
-#                             f'Исходный:date={file_info.last_modified}, size={file_info.size} Целевой:{target_file.last_modified}, {target_file.size}')
-#
-#
-#     def smart_copy(self, file_info):
-#         """Умное копирование: заменяет целевой файл, если исходный больше или свежее."""
-#         target_files = self.target.get_file(file_info.name)
-#         if target_files:
-#             for target_file in target_files:
-#                 if (file_info.size > target_file.size) or (file_info.last_modified > target_file.last_modified):
-#                     print(f"Копирование файла: {file_info.full_path} -> {target_file.full_path} (больше или свежее)")
-#                     shutil.copy2(file_info.full_path, target_file.full_path)  # Копируем файл с сохранением метаданных
-#                     file_info.path.unlink()
-#                     self.deleted_files_count()
-#                 else:
-#                     print(f"Файл не заменен: {target_file.full_path} (целевой файл актуальнее)")
-#                     file_info.path.unlink()
-#                     self.deleted_files_count()
-#
-#     def _remove_empty_dirs(self, dir_path): #TODO Функцией удаления папок должен заниматься отдельный класс, а не внутри очистителя
-#         """Удаляет пустые папки и увеличивает счетчик удаленных папок."""
-#         # Перебираем все подкаталоги в директории
-#         for subdir in dir_path.iterdir():
-#             if subdir.is_dir():
-#                 self._remove_empty_dirs(subdir)  # Рекурсивно проверяем подкаталоги
-#
-#                 # Если директория пустая, удаляем её
-#                 if not any(subdir.iterdir()):
-#                     print(f"Удаление пустой папки: {subdir}")
-#                     subdir.rmdir()
-#                     self.deleted_dirs_count()  # Увеличиваем счетчик удаленных папок
+    :param source:
+    :type source:
+    :param duplicate_key:
+    :type duplicate_key:
+    :param delete_key:
+    :type delete_key:
+    :return:
+    :rtype:
+    """
+    duplicates = dict()
+    for first, second in combinations(source, 2):
+        if duplicate_key(first) == duplicate_key(second):
+            if duplicate_key(first) in duplicates:
+                duplicates[duplicate_key(first)].update([first, second])
+            else:
+                duplicates[duplicate_key(first)] = {first, second}
+    for value in duplicates.values():
+        files = list(value)
+        files.sort(key=delete_key)
+        for file in files[1:]:
+            print('Удалён', file)
+            file.delete()
+    source.update()
 
 
+def remove_empty_dirs(dir_path: Path):
+    """Удаляет пустые папки в переданном пути класса Path"""
+    # Перебираем все подкаталоги в директории
+    for subdir in dir_path.iterdir():
+        if subdir.is_dir():
+            remove_empty_dirs(subdir)  # Рекурсивно проверяем подкаталоги
 
-
+            # Если директория пустая, удаляем её
+            if not any(subdir.iterdir()):
+                print(f"Удаление пустой папки: {subdir}")
+                subdir.rmdir()
 
 
 if __name__ == '__main__':
     # Испытание DirectoryInfo
-    d = r'D:\!Science\Физтех\Циклирования\Разобрать эксперименты'
-    # print(d)
-    d = DirectoryIter(d)
-    # s = r'D:\!Science\Физтех\Циклирования\Разобрать эксперименты'
-    # # source = DirectoryInfo(s, '*')
-    # # print(*[f for f in source.files if f.extension not in ['.xlsx', '.ndax']], sep='\n')
-    # cleaner = DirectoryCleaner(s, d)
-    # cleaner._remove_empty_dirs(cleaner.target.path)
-    duplicates = dict()
-    for first, second in combinations(d, 2):
-        if first.hash == second.hash:
-            if first.hash in duplicates:
-                duplicates[first.hash].update([first, second])
-            else:
-                duplicates[first.hash] = {first, second}
-    print(duplicates)
-    # for value in duplicates.values():
-    #     for file in list(value)[1:]:
-    #         file.delete()
-    pass
+    source = r'D:\Python\Testing\Разобрать эксперименты'
+    source = DirectoryIter(source)
+    print(source)
+    delete_duplicates(source, lambda x:x.hash, lambda x:str(x.full_path))
+    remove_empty_dirs(source.path)
+    print(source)
