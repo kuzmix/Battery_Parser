@@ -14,15 +14,15 @@ class FileList(list):
 
     def __init__(self, *args, file_rep=File, **kwargs):
         self.filetype = file_rep
-        self.check_type(args)
-        self.check_type(kwargs.values())
+        self._check_type(args)
+        self._check_type(kwargs.values())
 
         super().__init__(*args, **kwargs)
 
-    def check_type(self, el):
+    def _check_type(self, el):
         if hasattr(el, '__iter__'):
             for i in el:
-                self.check_type(i)
+                self._check_type(i)
         else:
             if not isinstance(el, self.filetype):
                 raise TypeError('Элемент не принадлежит нужному типу.')
