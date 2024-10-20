@@ -96,6 +96,7 @@ class FileAction(FileInfo):
 
     def delete(self):
         """Удаляет данный файл"""
+        print(f'Файл {self} удалён')
         self.path.unlink()
 
     def _compute_hash(self) -> str:
