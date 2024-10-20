@@ -95,6 +95,8 @@ def delete_duplicates(source: DirectoryIter,
 def remove_empty_dirs(dir_path: Path):
     """Удаляет пустые папки в переданном пути класса Path"""
     # Перебираем все подкаталоги в директории
+    if isinstance(dir_path, DirectoryIter):
+        dir_path = dir_path.path
     for subdir in dir_path.iterdir():
         if subdir.is_dir():
             remove_empty_dirs(subdir)  # Рекурсивно проверяем подкаталоги
@@ -130,16 +132,21 @@ def remove_existing_files(source: DirectoryIter,
 
 
 if __name__ == '__main__':
-    # Алгоритм обработки
-    source = r'D:\Python\Testing\Разобрать эксперименты'
-    target = r'D:\Python\Testing\target'
+    # Алгоритм обработки файлов - полный сверху вниз.
+    source = r'D:\!Science\Физтех\Циклирования\Разобрать эксперименты'
+    target = r'D:\!Science\Физтех\Циклирования\Эксперименты_метро'
+    xml_clean = DirectoryIter(target, '*.xml')
+    for i in xml_clean:
+        i.delete()
     source = DirectoryIter(source)
     target = DirectoryIter(target)
     print(source)
     print(target)
     delete_duplicates(source, lambda x:x.hash, lambda x:str(x.full_path))
-    remove_empty_dirs(source.path)
+    # delete_duplicates(source, lambda x:x.name, lambda x:x.size)
     print(source)
     remove_existing_files(source, target, lambda x:x.hash)
     remove_existing_files(source, target, lambda x:x.name)
+    remove_empty_dirs(source.path)
+    remove_empty_dirs(target.path)
     print(source)
