@@ -22,8 +22,6 @@ def save_experiment(data: pd.DataFrame, filepath: str, **kwargs):
 
 
 def load_experiment(filepath: str, **kwargs):
-    if 'index_col' not in kwargs.keys():
-        kwargs['index_col'] = 'Index'
     return pd.read_csv(filepath, **kwargs)
 
 
