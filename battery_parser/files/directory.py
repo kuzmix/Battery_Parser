@@ -133,20 +133,20 @@ def remove_existing_files(source: DirectoryIter,
 
 if __name__ == '__main__':
     # Алгоритм обработки файлов - полный сверху вниз.
-    source = r'D:\!Science\Физтех\Циклирования\Разобрать эксперименты'
+    # source = r'D:\!Science\Физтех\Циклирования\Разобрать эксперименты'
     target = r'D:\!Science\Физтех\Циклирования\Эксперименты_метро'
-    xml_clean = DirectoryIter(target, '*.xml')
-    for i in xml_clean:
-        i.delete()
-    source = DirectoryIter(source)
+    # xml_clean = DirectoryIter(target, '*.xml')
+    # for i in xml_clean:
+    #     i.delete()
+    # source = DirectoryIter(source)
     target = DirectoryIter(target)
-    print(source)
-    print(target)
-    delete_duplicates(source, lambda x:x.hash, lambda x:str(x.full_path))
+    # print(source)
+    # print(target)
+    # delete_duplicates(source, lambda x:x.hash, lambda x:str(x.full_path))
     # delete_duplicates(source, lambda x:x.name, lambda x:x.size)
-    print(source)
-    remove_existing_files(source, target, lambda x:x.hash)
-    remove_existing_files(source, target, lambda x:x.name)
-    remove_empty_dirs(source.path)
+    # print(source)
+    # remove_existing_files(source, target, lambda x:x.hash)
+    # remove_existing_files(source, target, lambda x:x.name)
     remove_empty_dirs(target.path)
-    print(source)
+    # remove_empty_dirs(target.path)
+    print(target)

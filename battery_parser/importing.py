@@ -120,8 +120,8 @@ class Regex_parse:
         self._parse_result = []
         for string in strings:
             single_parse = self._parser(pattern, string)
-            self._parse_result.extend(single_parse)
-        column_names.append('Path')
+            self._parse_result.append(single_parse)
+        column_names.append('path')
         result = self._result_creator(self._parse_result, column_names)
         return result
 
@@ -138,8 +138,11 @@ class Regex_parse:
         """
         result = re.findall(pattern, string)
         if len(result) != 1:
-            print(f'Warning! For \n {string} \n found {len(result)} entries!')
-        result = [[i, string] for i in result]
+            print(f'Warning! For \n {string} \n found {len(result)} entries! We take only first match')
+        if isinstance(result[0], str):
+            result = [result[0]] + [string]
+        else:
+            result = list(result[0]) + [string]
         return result
 
     @staticmethod
@@ -153,6 +156,10 @@ class Regex_parse:
         Returns:
 
         """
+
+        # if len(parse_result)!= len(column_names):
+        #     print(f'Warning! Dataframe not created - not all columns found')
+        #     print(parse_result, column_names)
         result = pd.DataFrame.from_records(parse_result, columns=column_names)
         return result
 

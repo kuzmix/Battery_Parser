@@ -38,11 +38,11 @@ if __name__ == '__main__':
     # Формируем список названий этапов
     experiment_start = [
         'Испытание рабочих характеристик',
-        'Подготовка к циклированиям',
+        'Подготовка к циклированию',
     ]
     experiment_repeats = [
+        'Циклирование 28 дней',
         'Испытание рабочих характеристик',
-        'Циклирование 28 дней'
     ]
     n_cycles = 6  # Количество повторений циклирований
     experiment_names = []
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     #     test_dir = new_dir / f'test {i}' / f'file{i}'
     #     test_dir.mkdir(exist_ok=True, parents=True)
 
-    # Находим папки на нужном углублении.
+    # Находим папки на нужном углублении и переименовываем по нужному алгоритму.
     depth = 2
     for directory in target.path.rglob('*'):
         if directory.is_dir() and len(directory.relative_to(target.path).parts) == depth:
