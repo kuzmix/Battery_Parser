@@ -70,7 +70,8 @@ def column_statistics_step(grouped_data: pd.DataFrame, column: str, method: str)
     Returns:
             (dict) with one entry - statistic summary for method and column. Key = column_method
     """
-    return {'_'.join([column, method]):summarize_grouper_fragment(grouped_data[column], method)}
+    if column in grouped_data.columns:
+        return {'_'.join([column, method]): summarize_grouper_fragment(grouped_data[column], method)}
 
 
 def summarize_grouper_fragment(grouped_slice, method: str = 'mean'):

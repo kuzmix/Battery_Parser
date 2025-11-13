@@ -4,7 +4,7 @@
 from itertools import combinations, product
 from pathlib import Path
 
-from file import File
+from .file import File
 
 
 class FileList(list):
