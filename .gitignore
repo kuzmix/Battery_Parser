@@ -161,3 +161,4 @@ cython_debug/
 #iframe_figures directory in Jupyter projecting
 Jupyter projecting/iframe_figures/
 .vscode/settings.json
+/headers.css
