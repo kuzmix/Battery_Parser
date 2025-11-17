@@ -162,3 +162,12 @@ cython_debug/
 Jupyter projecting/iframe_figures/
 .vscode/settings.json
 /headers.css
+/Figures/3C 3.8V cycles v2.jpg
+/Figures/1C 4V cycles.jpg
+/Figures/3C 3.8V cycles.jpg
+/Figures/3C 4V cycles.jpg
+/data/cellcodes.txt
+/data/files_no_enddate.txt
+/data/filter dups.txt
+/Figures/FUNNY_resistance.jpg
+/Figures/resistance.jpg
